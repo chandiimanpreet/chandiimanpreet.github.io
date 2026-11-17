@@ -11,6 +11,7 @@ describe('App', () => {
     expect(container.querySelectorAll('h1')).toHaveLength(1)
     const rendered = [...container.querySelectorAll('main > section')].map((s) => s.id)
     expect(rendered).toEqual(sections.map((s) => s.id))
+    expect(rendered).toEqual(['hero', 'about', 'projects', 'contact'])
     for (const { id } of sections) {
       const section = container.querySelector(`#${id}`)
       expect(section?.getAttribute('aria-labelledby')).toBe(headingId(id))

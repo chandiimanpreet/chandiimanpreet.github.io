@@ -9,16 +9,33 @@ const EMAIL_REVERSED = 'moc.liamg@555idnahcteerpnam'
 export const profile: Profile = {
   name: 'Manpreet Singh',
   role: 'Backend Engineer',
-  lead: 'I build distributed systems in Go and Node.js/TypeScript: REST APIs, event-driven services and durable Temporal workflows, shipped on AWS and Kubernetes with automated CI/CD. I have also put LLM agents into production on top of them.',
-  summary:
-    'Software Engineer with expertise in Go, Node.js/TypeScript and distributed systems. I design scalable REST APIs and event-driven backends with durable workflow orchestration, retries and idempotent processing, and I ship and integrate LLM agents into production services using LangChain and LangGraph. Experienced in running reliable backends on AWS and Kubernetes with automated CI/CD.',
-  location: 'Patiala, Punjab, India',
-  city: 'Patiala',
-  timeZone: 'Asia/Kolkata',
+  tagline:
+    'designing APIs, orchestrating workflows, building the backend systems that run behind them.',
+  about:
+    'Software engineer working on distributed systems in Go and Node.js/TypeScript. I design REST APIs and event-driven backends with durable workflow orchestration, retries and idempotent processing, run them on AWS and Kubernetes with automated CI/CD, and have shipped LLM agents into production services with LangChain and LangGraph.',
+  // Most important first: the hero shows the first 7, About shows all.
+  stack: [
+    'Go',
+    'TypeScript',
+    'Node.js',
+    'Temporal',
+    'AWS',
+    'Kubernetes',
+    'Docker',
+    'REST APIs',
+    'Microservices',
+    'LangGraph',
+    'MongoDB',
+    'Redis',
+    'GitHub Actions',
+    'ArgoCD',
+  ],
   email: [...EMAIL_REVERSED].reverse().join(''),
   githubLogin: 'chandiimanpreet',
-  // OWNER DECISION (SECURITY.md section 8): the source PDF contains the phone number, so no PDF
-  // ships yet. When a redacted copy exists at public/resume/<file>.pdf, set this to its path
-  // ('/resume/<file>.pdf') and every "Download resume" control appears. null hides them all.
-  resumeUrl: null,
+  // OWNER DECISION: the resume PDF (phone number included) ships at public/resume/. Set this to null to
+  // show every Resume control disabled ("coming soon").
+  resumeUrl: '/resume/ManpreetSingh_Resume.pdf',
 }
+
+// Header brand lines (docs/DESIGN-V3-HEADER.md 2.2): the role as user@host, the field as a path.
+export const brand = { name: 'manpreetSingh', path: '~/backend-engineer' } as const

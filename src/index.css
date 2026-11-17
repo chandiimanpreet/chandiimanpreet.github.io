@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Palette from docs/DESIGN.md section 2. Raw values live here once; everything else
+ * Palette from docs/DESIGN-V3.md section 2. Raw values live here once; everything else
  * (shadcn components, sections) reads them through the semantic tokens in @theme below.
  * :root is "Paper" (light), .dark is "Ink" (dark, default).
  */
@@ -36,22 +36,11 @@
   --ring: #9a4a00;
   --surface: #ffffff;
   --surface-2: #f1ece2;
-  --branch: #2a5f96; /* Deep steel: forked rail, Showcase */
+  --branch: #2a5f96; /* Deep steel: the hero trace field (through --rain) */
   --ok: #1a6e41; /* Pine */
-  --glow: rgb(154 74 0 / 0.08); /* hero HEAD halo */
-  --spot: rgb(42 95 150 / 0.07); /* Showcase pointer spotlight */
+  --rain: rgb(42 95 150 / 0.28); /* steel on paper; the hero trace field */
+  --rain-head: rgb(42 95 150 / 0.62);
   --radius: 10px;
-
-  /* Layout values that change with the viewport (Tailwind tokens below point at these). */
-  --rail-col: 1.25rem;
-  --fork-offset: 0rem;
-}
-
-@media (min-width: 48rem) {
-  :root {
-    --rail-col: 3.5rem;
-    --fork-offset: 1.75rem;
-  }
 }
 
 .dark {
@@ -79,8 +68,8 @@
   --surface-2: #1d2430;
   --branch: #7db0e0; /* Steel */
   --ok: #5bc58b; /* Moss */
-  --glow: rgb(245 165 36 / 0.12);
-  --spot: rgb(125 176 224 / 0.1);
+  --rain: rgb(125 176 224 / 0.38); /* steel on ink; the hero trace field */
+  --rain-head: rgb(236 232 223 / 0.85); /* bone */
 }
 
 @theme inline {
@@ -108,8 +97,8 @@
   --color-surface-2: var(--surface-2);
   --color-branch: var(--branch);
   --color-ok: var(--ok);
-  --color-glow: var(--glow);
-  --color-spot: var(--spot);
+  --color-rain: var(--rain);
+  --color-rain-head: var(--rain-head);
 
   /* type */
   --font-display: 'Bricolage Grotesque Variable', 'Segoe UI', system-ui, sans-serif;
@@ -139,13 +128,8 @@
   --spacing-gutter: clamp(1rem, 5vw, 3rem);
   --spacing-header: 4rem;
   --spacing-target: 2.75rem; /* 44px touch target */
-  --spacing-rail: var(--rail-col);
-  --spacing-rail-line: 2px;
-  --spacing-node: 0.75rem;
-  --spacing-node-sm: 0.5rem;
-  --spacing-fork: var(--fork-offset);
-  --spacing-label: 9rem; /* label column: skills, health, changelog */
   --container-content: 70rem;
+  --container-hero: 80rem; /* max-w-hero: hero and header inner width */
   --container-measure: 62ch;
 
   /* shape: 4px for chips/inputs, 10px for cards/buttons, nothing larger */
@@ -160,6 +144,31 @@
 
   /* motion: durations are 120 / 240 / 900 ms (duration-120, duration-240, duration-900) */
   --ease-brand: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --animate-caret: caret-blink 1s steps(1) 10; /* 10 blinks, then solid (WCAG 2.2.2) */
+  --animate-cue: cue-drop 1.6s var(--ease-brand) infinite;
+
+  @keyframes caret-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes cue-drop {
+    0% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(2rem);
+      opacity: 0;
+    }
+  }
 }
 
 @layer base {
@@ -192,9 +201,49 @@
   }
 }
 
-/* Lock the page behind an open modal <dialog> (the mobile menu); no runtime <style> needed. */
-body:has(dialog[open]) {
-  overflow: hidden;
+/* Section reveal: scroll-driven, no JS. Browsers without support simply show the content. */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
+  }
+}
+
+/* Header scroll progress: scroll-driven, no JS. Browsers without support do not show it. */
+.scroll-progress {
+  display: none;
+}
+@keyframes scroll-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    display: block;
+    position: absolute;
+    inset: auto 0 -1px 0; /* sits exactly on the header's 1px bottom border */
+    height: 1px;
+    background: var(--primary);
+    opacity: 0.7;
+    transform-origin: left;
+    animation: scroll-progress linear both;
+    animation-timeline: scroll(root block);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -207,5 +256,9 @@ body:has(dialog[open]) {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  /* The rule above does not stop scroll-driven animations. */
+  .reveal {
+    animation: none;
   }
 }

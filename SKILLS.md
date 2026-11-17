@@ -9,10 +9,9 @@ Playbooks for recurring tasks. Follow `CONTRIBUTING.md` first; this file is the 
 ## Build a section (section agents)
 
 1. Edit only `src/sections/<Name>Section.tsx` (default export). Put helpers in `src/components/<name>/` as named-export components, one per file.
-2. Wrap content in `<Section id="..." title="...">` from `@/components/layout/Section` (gives `id`, `aria-labelledby`, h2, container and section spacing). Hero builds its own `<section>` with the page's only `<h1>`.
+2. Wrap content in `<Section id="..." eyebrow="..." title="...">` from `@/components/layout/Section` (gives `id`, `aria-labelledby`, the mono eyebrow line, h2, container and section spacing). Hero builds its own `<section>` with the page's only `<h1>`.
 3. Import data from `@/content/*` and types from `@/types/content`. Never hard-code resume facts in JSX.
-4. GitHub data: `useGithubRepos(login?)` returns `{ status: 'loading' } | { status: 'success', data, stale, savedAt } | { status: 'error', error }`. Show skeletons while loading, a quiet "showing saved data" note when `stale`, and a static fallback on error.
-5. Add a `*.test.tsx` beside your component if it has logic (branches, mapping). Run the four checks before handing back.
+4. Add a `*.test.ts(x)` beside your component if it has logic (branches, mapping). Run the four checks before handing back.
 
 ## Add a section (new slot)
 
@@ -21,62 +20,56 @@ Playbooks for recurring tasks. Follow `CONTRIBUTING.md` first; this file is the 
 
 ## Add or change a project
 
-- Edit `projects` in `src/content/projects.ts`. Optional `agentGraph` (nodes + edges; nodes sharing a `from` run in parallel) and `workflow` (ordered steps + guarantees).
-- Work systems (closed source) go in `systems` in the same file and are linked from `experience[].systemIds`.
-- Every metric value must appear in `docs/RESUME.md`; tests check edges/steps reference real nodes.
+- Edit `projects` in `src/content/projects.ts`: `{ id, name, description, stack, repoUrl, liveUrl? }`; drop `placeholder: true` when the repo is real. Cards are rendered by `ProjectCard`; no API calls.
+- `npm test` checks unique ids, `repoUrl` on `GITHUB_LINK_HOSTS`, `liveUrl` https and at most 6 stack items. Facts and numbers must be in `docs/RESUME.md`.
 
-## Add a showcased engineer
+## Change the resume
 
-- Append a GitHub username to `src/content/showcase.ts`. Nothing else. Max 8 (keeps the grid short). Cards make no API calls: avatar and profile URLs are derived from the login (`isGithubLogin`, `githubProfileUrl` in `@/lib/url`).
+- `profile.resumeUrl` in `src/content/profile.ts`: `/resume/<file>.pdf` (file in `public/resume/`) or an https link on `drive.google.com` / `docs.google.com` (`RESUME_HOSTS`). Anything else, or `null`, renders every `<ResumeLink>` disabled.
 
 ## Shared building blocks (reuse before writing new ones)
 
-- `@/lib/anchors`: `headingId`, `projectAnchorId`, `systemAnchorId` (in-page link targets).
-- `@/lib/styles`: `linkClass`, `targetLinkClass`, `projectGridClass`.
-- `@/lib/time`: `formatClock`, `formatLocalTime`, `msUntilNextMinute`; `@/hooks/useMinuteTick` re-renders once a minute for clocks.
-- `@/components/shared`: `ExternalLink`, `Todo`, `PeriodTime` (a `<time>` for a date range), `StackList` (mono tech badges, optional `label` for an accessible name).
-- UI copy that tests guard lives in `@/content`: `hero.ts` (`heroPicks`), `workflow.ts` (`requestPath`, `temporalGives`), `contact.ts` (`mailTemplates`).
+- `@/content/nav`: `sections`, `navItems`, `headingId`.
+- `@/lib/url`: `safeUrl`, `resumeHref`, `githubProfileUrl`, `isGithubLogin`, `GITHUB_LINK_HOSTS`, `RESUME_HOSTS`.
+- `@/lib/styles`: `linkClass`, `targetLinkClass`. `@/lib/motion`: `prefersReducedMotion`.
+- `@/components/shared`: `ExternalLink` (`newTab`, `allowedHosts`), `ResumeLink`, `StackList` (mono tech badges, optional `label`).
+- `@/components/hero/useFrameLoop`: the page's only `requestAnimationFrame` loop; anything that animates in JS joins it.
 
 ## Change design values
 
-- Edit `src/index.css` only: raw values in `:root` (light, "Paper") and `.dark` (dark, "Ink", default); Tailwind names in `@theme inline`.
+- Edit `src/index.css` only: raw values in `.dark` (the shipped theme; `<html class="dark">`), Tailwind names in `@theme inline`.
 - Available tokens:
-  - Colours: `background foreground card card-foreground popover popover-foreground primary primary-foreground secondary secondary-foreground muted muted-foreground accent accent-foreground destructive border border-strong input ring surface surface-2 branch ok glow spot`. `primary` is saffron (links, primary action, active node, focus). shadcn's `accent` is the subtle hover fill, not saffron. `branch` (steel) is Showcase only.
+  - Colours: `background foreground card card-foreground popover popover-foreground primary primary-foreground secondary secondary-foreground muted muted-foreground accent accent-foreground destructive border border-strong input ring surface surface-2 branch ok`, plus hero background tokens. `primary` is saffron (links, primary action, focus). shadcn's `accent` is the subtle hover fill, not saffron.
   - Fonts: `font-display` (= `font-heading`), `font-sans`, `font-mono`.
   - Sizes: `text-hero text-h2 text-h3 text-lead text-code` (line-height/tracking/weight included) plus Tailwind defaults.
-  - Spacing: Tailwind's 4px scale, plus `section gutter header target rail rail-line node node-sm fork label` (e.g. `py-section px-gutter h-target w-rail`).
-  - Width: `max-w-content` (70rem), `max-w-measure` (62ch).
-  - Radius: `rounded-sm` 4px, `rounded-md`/`lg`/`xl` 10px (nothing larger), `rounded-full`.
-  - Motion: `ease-brand`, `duration-120 / 240 / 900`, `tw-animate-css` classes (`animate-in fade-in ...`), always with a `motion-reduce:` fallback. No JS animation library.
-- Dark-only tweaks: `dark:` variant (class-based on `<html>`).
-- Changing `--background`: also update the `theme-color` literal in `index.html` and both literals in `public/theme-init.js` (a content test fails until they match).
+  - Spacing: Tailwind's 4px scale, plus `section gutter header target` (e.g. `py-section px-gutter h-target`).
+  - Width: `max-w-content` (70rem), `max-w-hero` (80rem), `max-w-measure` (62ch).
+  - Radius: `rounded-sm` 4px, `rounded-md` and up = `--radius` (10px), `rounded-full`.
+  - Motion: `ease-brand`, `duration-120 / 240 / 900`, `tw-animate-css` classes (`animate-in fade-in ...`), always with a `motion-reduce:` fallback.
+- Changing the `.dark` `--background`: also update the `theme-color` literal in `index.html` (a content test fails until they match).
 
 ## Add a shadcn component
 
 - `npx shadcn@latest add <name> -y`, then replace `from "cn"` with `from "@/lib/utils"` in the generated file (this project uses clsx + tailwind-merge, not the `cn` package) and remove `cn` from `package.json` if the CLI added it.
 
-## Call the GitHub API
-
-- Only through `src/lib/github.ts` (via the hooks). It validates every response with hand-written parsers, caches in `localStorage` (`pf:v1:*`, 1 h TTL, re-validated on read), backs off on rate limit, and serves stale cache when GitHub is down.
-- Remote URLs: `safeUrl(value, GITHUB_LINK_HOSTS)` from `@/lib/url`; avatars are pre-validated to `avatars.githubusercontent.com`. Render remote text as React children only.
-
 ## Security rules (docs/SECURITY.md)
 
 - CSP is injected at build: no inline scripts or `<style>` tags, no third-party hosts. Adding a host means editing the CSP in `vite.config.ts` and SECURITY.md together.
-- Off-site links: `<ExternalLink>`; raw `<a href="https://...">` fails lint. Same tab, no `target="_blank"`.
-- No phone number anywhere; no resume PDF until the owner approves a redacted copy (`profile.resumeUrl` stays `null`, which hides every resume control).
+- No runtime network requests and no browser storage. Reintroducing either needs a SECURITY.md update first.
+- Off-site links: `<ExternalLink>`; raw `<a href="https://...">` fails lint. GitHub and LinkedIn links use `newTab` (`target="_blank"`, `rel="noopener noreferrer"`, a screen-reader "opens in a new tab" note). The resume opens in a new tab through `<ResumeLink>`.
+- No phone number in source or rendered page. The resume PDF carries it by the owner's choice; never copy it from there.
 
-## Design work (Fable)
+## Design work
 
 - Read the brief, write `docs/DESIGN*.md`: palette, type, layout wireframes, copy, motion, component states. Avoid templated defaults.
 
-## Implementation work (Opus)
+## Implementation work
 
-- Read `CONTRIBUTING.md`, `SKILLS.md`, the design docs. Implement exactly; flag gaps instead of inventing.
+- Read `CONTRIBUTING.md`, `SKILLS.md`, the design docs (`docs/DESIGN-V3.md` and its addenda). Implement exactly; flag gaps instead of inventing.
 
 ## Verify
 
-- `npm run typecheck && npm run lint && npm test && npm run build`, then `npm run preview`: console clean (no CSP errors), 320px and 1440px, keyboard order, both themes, reduced motion, API failure (block api.github.com in devtools).
+- `npm run typecheck && npm run lint && npm test && npm run build`, then `npm run preview`: console clean (no CSP errors), 320px and 1440px, keyboard order, reduced motion and the hero pause control, new-tab links, resume opens.
 
 ## Deploy (only when the user says so)
 

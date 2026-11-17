@@ -5,12 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta name="color-scheme" content="dark light" />
-    <!-- Must equal --background of .dark in src/index.css (the default theme); public/theme-init.js
-         swaps it per theme and a test in src/content/content.test.ts keeps all three in sync. -->
+    <meta name="color-scheme" content="dark" />
+    <!-- Must equal --background of .dark in src/index.css; a test in src/content/content.test.ts keeps them in sync. -->
     <meta name="theme-color" content="#0d1017" />
-    <!-- Blocking classic script: applies the saved theme before first paint. No inline scripts (CSP). -->
-    <script src="/theme-init.js"></script>
     <link
       rel="preload"
       as="font"

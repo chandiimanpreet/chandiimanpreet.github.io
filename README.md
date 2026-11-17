@@ -1,6 +1,6 @@
 # chandiimanpreet.github.io
 
-Portfolio of Manpreet Singh, Backend Engineer: Go and Node.js/TypeScript services, distributed systems, durable workflows on Temporal, AWS and Kubernetes. A single static page with sections for About, Experience, Projects, Workflows (a replayable Temporal run), Skills, Showcase and Contact. The only live data is public repositories from the GitHub REST API.
+Portfolio of Manpreet Singh, Backend Engineer: Go and Node.js/TypeScript services, distributed systems, durable workflows on Temporal, AWS and Kubernetes. A single static, dark-only page: a hero (typed tagline, request-flow diagram, animated background), About, Projects (terminal-window cards from a curated list) and Contact. No runtime network requests; all content is in `src/content/`.
 
 ## Stack
 
@@ -22,21 +22,19 @@ Vite, React 19, TypeScript (strict), Tailwind CSS v4 (CSS-first tokens in `src/i
 ## Folder map
 
 ```
-index.html            meta, SEO, theme-color; loads public/theme-init.js
-vite.config.ts        aliases, CSP plugin, build and test config
+index.html            meta, SEO, theme-color (dark only)
+vite.config.ts        alias, CSP plugin, build and test config
 src/
   App.tsx             renders sections in the order of src/content/nav.ts
   index.css           palette and Tailwind tokens (the only place raw colours live)
   types/content.ts    every content type
-  content/            resume facts and guarded UI copy (profile, experience, projects, skills,
-                      showcase, socials, nav, hero, workflow, contact, ...); content.test.ts
-  lib/                github (fetch, cache, parse), guards, url, anchors, styles, time, utils
-  hooks/              useGithubRepos, useGithubResource, useTheme, useMinuteTick
-  sections/           one <Name>Section.tsx per section
-  components/         ui/ (shadcn), layout/, shared/, and one folder per section
-public/               theme-init.js, favicon, robots.txt, .well-known/security.txt
+  content/            profile, projects, socials, nav; content.test.ts
+  lib/                url (safeUrl, resumeHref, host lists), styles, motion, utils
+  sections/           HeroSection, AboutSection, ProjectsSection, ContactSection
+  components/         ui/ (shadcn), layout/ (+ header/), shared/, hero/, projects/, contact/
+public/               favicon, resume/ (PDF), robots.txt, .well-known/security.txt
 scripts/check-dist.sh post-build audit
-docs/                 RESUME.md (source of facts), DESIGN*.md, SECURITY.md
+docs/                 RESUME.md (source of facts), DESIGN-V3*.md, SECURITY.md, AGENT-BRIEF.md
 _legacy/              archived vanilla site, reference only
 ```
 
@@ -44,8 +42,8 @@ Working rules for contributors and agents: `CONTRIBUTING.md` and `SKILLS.md`.
 
 ## How to
 
-- **Add a project:** add an entry to `projects` (or `systems` for closed-source work, linked from `experience[].systemIds`) in `src/content/projects.ts`. Every number must appear in `docs/RESUME.md`; `npm test` fails otherwise.
-- **Add a showcase engineer:** append a GitHub login to `src/content/showcase.ts` (8 at most). Avatar and profile links are derived from the login; no API calls.
+- **Add a project:** replace a placeholder (or append) in `projects` in `src/content/projects.ts`: `{ id, name, description, stack, repoUrl, liveUrl? }`. `repoUrl` must be a GitHub https URL, `liveUrl` https, at most 6 stack items; `npm test` checks all three. Facts and numbers must be in `docs/RESUME.md`.
+- **Change the resume:** replace the PDF in `public/resume/` or set `profile.resumeUrl` in `src/content/profile.ts` to a Google Drive link (`drive.google.com` or `docs.google.com`); `null` shows the resume controls disabled.
 - **Add a section:** add the id to `SectionId` in `src/types/content.ts`, an entry in `src/content/nav.ts` (order is page order), create `src/sections/<Name>Section.tsx` (default export, wrapped in `<Section>`), and register it in `SECTION_COMPONENTS` in `src/App.tsx`.
 
 ## Deployment
@@ -59,19 +57,15 @@ Owner setup (nothing has been pushed yet):
 
 ## Open owner items
 
-- LinkedIn and LeetCode URLs (`src/content/socials.ts`; shown as TODO until set).
-- Showcase: confirm the six logins and write one line on why each is followed.
-- Resume PDF: not linked because the file contains a phone number. Decide whether to publish a redacted copy; then set `profile.resumeUrl`.
+- Projects: the three cards in `src/content/projects.ts` are placeholders; replace them with real repositories.
 - `public/.well-known/security.txt`: `Expires` is 2027-11-17; renew before then.
-- Pin three actions to full commit SHAs: `gitleaks/gitleaks-action@v2` (`deploy.yml`) and `github/codeql-action/init@v4` / `analyze@v4` (`codeql.yml`).
-- Natalie repository or demo URL (`src/content/projects.ts`).
-- `[CONFIRM]` workflow details (`docs/DESIGN-V2.md` section 10): evaluators run concurrently, no separate aggregator step, and the request path hops (HTTP to Express API, API starts the Temporal workflow).
+- Pin `gitleaks/gitleaks-action@v2` (`deploy.yml`) to a full commit SHA.
 
 ## Security posture
 
-- Strict CSP injected at build: `script-src 'self'`, no inline scripts, no third-party hosts beyond `api.github.com` and GitHub avatars.
-- GitHub responses are parsed by hand-written guards, never cast; cached in `localStorage` with a TTL and re-validated on read.
-- Every remote URL passes `safeUrl` (https only, host allowlist); off-site links go through `<ExternalLink>`.
-- No `dangerouslySetInnerHTML` (lint-enforced); remote text renders only as React children.
-- No phone number anywhere (test and `check-dist.sh` enforced); the email is assembled at runtime.
-- CI: least-privilege job permissions, `npm audit`, gitleaks, CodeQL, actions pinned by SHA (three still open, above), no source maps in `dist/`. Details in `docs/SECURITY.md`.
+- Strict CSP injected at build: `script-src 'self'`, no inline scripts, no third-party scripts or styles.
+- No runtime network requests and nothing stored in the browser.
+- Every off-site URL passes `safeUrl` (https only, host allowlist) through `<ExternalLink>`; the resume link passes `resumeHref`. GitHub, LinkedIn and resume links open in a new tab with `rel="noopener noreferrer"`.
+- No `dangerouslySetInnerHTML` (lint-enforced).
+- No phone number in the site source or rendered page (test and `check-dist.sh` enforced). The resume PDF contains it by the owner's choice. The email is assembled at runtime.
+- CI: least-privilege job permissions, `npm audit`, gitleaks, CodeQL, actions pinned by SHA (one still open, above), no source maps in `dist/`. Details in `docs/SECURITY.md`.

@@ -1,8 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { mailTemplates } from '@/content/contact'
-
-import { copyText, formatLocalTime, mailtoHref } from './contact'
+import { copyText, mailtoHref } from './contact'
 
 const EMAIL = 'someone@example.com'
 
@@ -19,8 +17,7 @@ describe('mailtoHref', () => {
   })
 
   it('omits an empty body', () => {
-    const [, natalie] = mailTemplates
-    expect(mailtoHref(EMAIL, natalie)).toBe(`mailto:${EMAIL}?subject=About%20Natalie`)
+    expect(mailtoHref(EMAIL, { subject: 'Hello', body: '' })).toBe(`mailto:${EMAIL}?subject=Hello`)
   })
 })
 
@@ -65,12 +62,5 @@ describe('copyText', () => {
     await expect(copyText(EMAIL)).resolves.toBe(false)
     stubExec(false)
     await expect(copyText(EMAIL)).resolves.toBe(false)
-  })
-})
-
-describe('formatLocalTime', () => {
-  it('formats in the given zone, not the machine zone', () => {
-    const t = formatLocalTime(new Date('2026-01-01T10:12:00Z'), 'Asia/Kolkata')
-    expect(t).toMatch(/^3:42\sPM GMT\+5:30$/)
   })
 })

@@ -1,68 +1,41 @@
-import { Fragment } from 'react'
-
 import { Section } from '@/components/layout/Section'
-import { buildAnchors, useHashOpenRows } from '@/components/projects/anchors'
-import { GithubRepoList } from '@/components/projects/GithubRepoList'
-import { ProjectFacts } from '@/components/projects/ProjectFacts'
-import { ProjectRow } from '@/components/projects/ProjectRow'
-import { SystemFacts } from '@/components/projects/SystemFacts'
-import { PeriodTime } from '@/components/shared/PeriodTime'
-import { Accordion } from '@/components/ui/accordion'
-import { projects, systems } from '@/content/projects'
-import { projectAnchorId, systemAnchorId } from '@/lib/anchors'
+import { ProjectCard } from '@/components/projects/ProjectCard'
+import { ExternalLink } from '@/components/shared/ExternalLink'
+import { profile } from '@/content/profile'
+import { projects } from '@/content/projects'
+import { linkClass } from '@/lib/styles'
+import { githubProfileUrl } from '@/lib/url'
 
-const ANCHORS = buildAnchors(projects, systems)
-const ORGS = [...new Set(systems.map((s) => s.org))]
-// The personal project (Natalie) is open by default; it carries the backend story.
-const OPEN_BY_DEFAULT = projects.slice(0, 1).map((p) => p.id)
+const soon = projects.filter((p) => p.placeholder).length
 
 export default function ProjectsSection() {
-  const [open, setOpen] = useHashOpenRows(ANCHORS, OPEN_BY_DEFAULT)
-
   return (
-    <Section id="projects" title="Things I have built">
-      <p className="mt-4 max-w-measure text-lead text-muted-foreground">
-        One project of my own, and the systems I shipped at work.
+    <Section
+      id="projects"
+      eyebrow="~/projects $ ls -la"
+      title="Things I've built"
+      className="text-center"
+    >
+      <p className="mt-4 font-mono text-code text-muted-foreground">
+        total {projects.length} · {projects.length - soon} public · {soon} coming soon
       </p>
-      <Accordion type="multiple" value={open} onValueChange={setOpen} className="mt-10">
-        {projects.map((p) => (
-          <ProjectRow
-            key={p.id}
-            value={p.id}
-            anchorId={projectAnchorId(p.id)}
-            name={p.name}
-            summary={p.tagline}
-            metrics={p.metrics}
-            meta={<PeriodTime period={p.period} />}
-          >
-            <ProjectFacts project={p} />
-          </ProjectRow>
-        ))}
-        {/* The org once, as a label over its systems, instead of on every row. */}
-        {ORGS.map((org) => (
-          <Fragment key={org}>
-            <p className="mt-10 px-3 pb-2 font-mono text-sm text-muted-foreground">
-              Built at {org}
-            </p>
-            {systems
-              .filter((s) => s.org === org)
-              .map((s) => (
-                <ProjectRow
-                  key={s.id}
-                  value={s.id}
-                  anchorId={systemAnchorId(s.id)}
-                  nameAnchorId={projectAnchorId(s.id)}
-                  name={s.name}
-                  summary={s.summary}
-                  metrics={s.metrics}
-                >
-                  <SystemFacts system={s} />
-                </ProjectRow>
-              ))}
-          </Fragment>
-        ))}
-      </Accordion>
-      <GithubRepoList className="mt-16" />
+      {projects.length > 0 ? (
+        <ul className="mt-10 grid gap-6 text-left sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((p) => (
+            <li key={p.id}>
+              <ProjectCard project={p} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-10 text-muted-foreground">
+          Repositories are on the way. My code is on{' '}
+          <ExternalLink newTab href={githubProfileUrl(profile.githubLogin)} className={linkClass}>
+            GitHub
+          </ExternalLink>
+          .
+        </p>
+      )}
     </Section>
   )
 }

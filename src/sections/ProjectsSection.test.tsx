@@ -1,53 +1,41 @@
-import { act, render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import type { Project } from '@/types/content'
 
 import ProjectsSection from './ProjectsSection'
 
-vi.mock('@/hooks/useGithubRepos', () => ({ useGithubRepos: () => ({ status: 'loading' }) }))
+const state = vi.hoisted(() => ({ projects: null as readonly Project[] | null }))
 
-const trigger = (name: RegExp) => screen.getByRole('button', { name })
+vi.mock('@/content/projects', async (importOriginal) => {
+  const real = await importOriginal<typeof import('@/content/projects')>()
+  return {
+    get projects() {
+      return state.projects ?? real.projects
+    },
+  }
+})
+
+afterEach(() => {
+  state.projects = null
+})
 
 describe('ProjectsSection', () => {
-  afterEach(() => {
-    history.replaceState(null, '', '#')
-  })
-
-  it('opens Natalie by default with its re-architecture story and a repo Todo', () => {
+  it('keeps its id, heading and one card per project', async () => {
+    const { projects } = await import('@/content/projects')
     render(<ProjectsSection />)
-    expect(trigger(/^Natalie/).getAttribute('aria-expanded')).toBe('true')
-    expect(screen.getByText(/BullMQ jobs on Redis queues/)).toBeTruthy()
-    expect(screen.getByText(/Natalie repo or demo URL/)).toBeTruthy()
-    expect(trigger(/^Helm deployment service/).getAttribute('aria-expanded')).toBe('false')
+    const section = screen.getByRole('region', { name: "Things I've built" })
+    expect(section.id).toBe('projects')
+    expect(within(section).getAllByRole('article')).toHaveLength(projects.length)
   })
 
-  it('names the org once over the systems, not on each row', () => {
+  it('shows the empty-state line with a GitHub link for no projects', () => {
+    state.projects = []
     render(<ProjectsSection />)
-    expect(screen.getAllByText(/Built at DevSecCops\.AI/)).toHaveLength(1)
-  })
-
-  it('renders a flow as whole steps, each ending with the label into the next', () => {
-    render(<ProjectsSection />)
-    act(() => trigger(/^Helm deployment service/).click())
-    const steps = screen.getByText('Deployment service').closest('ol')!.querySelectorAll('li')
-    expect([...steps].map((li) => li.textContent)).toEqual([
-      'Deployment serviceHelm',
-      'Kubernetes clusterinstalls',
-      'ArgoCD, SonarQube, Grafana, Prometheus',
-    ])
-  })
-
-  it('renders both anchor ids for systems and opens the row a hash points at', () => {
-    Element.prototype.scrollIntoView = vi.fn()
-    const { container } = render(<ProjectsSection />)
-    expect(container.querySelector('#system-helm-deployer')).toBeTruthy()
-    expect(container.querySelector('#project-helm-deployer')).toBeTruthy()
-    expect(container.querySelector('#project-natalie')).toBeTruthy()
-
-    act(() => {
-      history.replaceState(null, '', '#system-helm-deployer')
-      window.dispatchEvent(new HashChangeEvent('hashchange'))
-    })
-    expect(trigger(/^Helm deployment service/).getAttribute('aria-expanded')).toBe('true')
-    expect(Element.prototype.scrollIntoView).toHaveBeenCalled()
+    expect(screen.queryByRole('article')).toBeNull()
+    expect(screen.getByText(/Repositories are on the way\. My code is on/)).toBeTruthy()
+    const link = screen.getByRole('link', { name: /^GitHub ?\(opens in a new tab\)$/ })
+    expect(link.getAttribute('href')).toBe('https://github.com/chandiimanpreet')
+    expect(link.getAttribute('target')).toBe('_blank')
   })
 })

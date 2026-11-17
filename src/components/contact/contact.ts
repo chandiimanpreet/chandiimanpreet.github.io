@@ -1,12 +1,7 @@
 // Pure helpers for the Contact section, kept out of the components so they can be unit-tested.
 
-import type { MailTemplate } from '@/types/content'
-
 /** `mailto:` URL with subject/body percent-encoded (spaces as %20, newlines as %0A, never `+`). */
-export function mailtoHref(
-  email: string,
-  template?: Pick<MailTemplate, 'subject' | 'body'>,
-): string {
+export function mailtoHref(email: string, template?: { subject?: string; body?: string }): string {
   const params: string[] = []
   if (template?.subject) params.push(`subject=${encodeURIComponent(template.subject)}`)
   if (template?.body) params.push(`body=${encodeURIComponent(template.body)}`)
@@ -40,6 +35,3 @@ export async function copyText(text: string): Promise<boolean> {
     area.remove()
   }
 }
-
-// Lives in @/lib/time (cached formatter, shared with the hero clock); re-exported for existing callers.
-export { formatLocalTime } from '@/lib/time'

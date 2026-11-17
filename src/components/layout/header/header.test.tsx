@@ -1,11 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { SiteHeader } from '../SiteHeader'
-import { ThemeToggle } from '../ThemeToggle'
-import { ActiveSectionContext } from '../useActiveSection'
+import { profile } from '@/content/profile'
 
-import { MobileNav } from './MobileNav'
+import { SiteHeader } from '../SiteHeader'
+import { ActiveSectionContext } from '../useActiveSection'
 
 describe('SiteHeader', () => {
   const currentLinks = () =>
@@ -20,87 +19,56 @@ describe('SiteHeader', () => {
     expect(currentLinks()).toHaveLength(0)
 
     rerender(
-      <ActiveSectionContext value="about">
+      <ActiveSectionContext value="projects">
         <SiteHeader />
       </ActiveSectionContext>,
     )
     const current = currentLinks()
     expect(current).toHaveLength(1)
-    expect(current[0]!.textContent).toBe('About')
+    expect(current[0]!.textContent).toBe('/projects')
     expect(current[0]!.getAttribute('aria-current')).toBe('location')
   })
 
-  it('names the monogram link with its visible text first', () => {
+  const original = profile.resumeUrl
+  afterEach(() => {
+    profile.resumeUrl = original
+  })
+
+  it('has the section nav links, a disabled Resume while resumeUrl is null, and no menu', () => {
+    profile.resumeUrl = null
+    const { container } = render(<SiteHeader />)
+    const links = screen.getByRole('navigation', { name: 'Primary' }).querySelectorAll('a')
+    expect([...links].map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
+      ['/about', '#about'],
+      ['/projects', '#projects'],
+      ['/contact', '#contact'],
+    ])
+    expect(screen.queryByRole('link', { name: /resume/ })).toBeNull()
+    expect(container.querySelector('[aria-disabled="true"]')?.textContent).toMatch(/resume/)
+    expect(container.querySelector('dialog')).toBeNull()
+    expect(screen.queryAllByRole('button')).toHaveLength(0)
+  })
+
+  it('shows a new-tab Resume link when resumeUrl is set', () => {
+    profile.resumeUrl = '/resume/test.pdf'
     render(<SiteHeader />)
-    expect(screen.getByRole('link', { name: /^MS, .+, back to top$/ })).toBeTruthy()
-  })
-})
-
-describe('MobileNav', () => {
-  const items = [{ id: 'about' as const, label: 'About', inNav: true }]
-
-  const openMenu = () => {
-    const trigger = screen.getByRole('button', { name: 'Menu' })
-    trigger.focus()
-    fireEvent.click(trigger)
-    const dialog = screen.getByRole('dialog', { name: 'Menu' }) as HTMLDialogElement
-    expect(dialog.open).toBe(true)
-    expect(trigger.getAttribute('aria-expanded')).toBe('true')
-    expect(trigger.getAttribute('aria-controls')).toBe(dialog.id)
-    return { trigger, dialog }
-  }
-
-  it('opens a dialog, closes on link click and leaves focus for the target section', () => {
-    render(<MobileNav items={items} current="about" />)
-    const { trigger, dialog } = openMenu()
-    const link = screen.getByRole('link', { name: 'About' })
-    expect(link.getAttribute('aria-current')).toBe('location')
-
-    fireEvent.click(link)
-    expect(dialog.open).toBe(false)
-    expect(trigger.getAttribute('aria-expanded')).toBe('false')
-    expect(document.activeElement).not.toBe(trigger)
+    const resume = screen.getByRole('link', { name: /resume/ })
+    expect(resume.getAttribute('href')).toBe('/resume/test.pdf')
+    expect(resume.getAttribute('target')).toBe('_blank')
+    expect(screen.getByRole('navigation', { name: 'Primary' }).contains(resume)).toBe(false)
   })
 
-  it('mirrors the active section with aria-current', () => {
-    const { rerender } = render(<MobileNav items={items} current={null} />)
-    openMenu()
-    expect(screen.getByRole('link', { name: 'About' }).getAttribute('aria-current')).toBeNull()
-    rerender(<MobileNav items={items} current="about" />)
-    expect(screen.getByRole('link', { name: 'About' }).getAttribute('aria-current')).toBe(
-      'location',
-    )
+  it('names the brand link with its visible text first and links it to the top', () => {
+    render(<SiteHeader />)
+    const brandLink = screen.getByRole('link', { name: /^manpreetSingh: .+ Back to top$/ })
+    expect(brandLink.getAttribute('href')).toBe('#main')
+    expect(brandLink.querySelector('svg[aria-hidden="true"]')).not.toBeNull()
   })
 
-  it('returns focus to its trigger when closed without navigating', () => {
-    render(<MobileNav items={items} current={null} />)
-    const { trigger, dialog } = openMenu()
-    fireEvent.click(screen.getByRole('button', { name: 'Close menu' }))
-    expect(dialog.open).toBe(false)
-    expect(document.activeElement).toBe(trigger)
-  })
-
-  it('closes on a backdrop click but not on a click inside the panel', () => {
-    render(<MobileNav items={items} current={null} />)
-    const { dialog } = openMenu()
-    fireEvent.click(screen.getByRole('heading', { name: 'Menu' }))
-    expect(dialog.open).toBe(true)
-    fireEvent.click(dialog)
-    expect(dialog.open).toBe(false)
-  })
-})
-
-describe('ThemeToggle', () => {
-  afterEach(() => document.documentElement.classList.remove('dark'))
-
-  it('keeps one name and reports the theme through aria-pressed', () => {
-    document.documentElement.classList.add('dark')
-    render(<ThemeToggle />)
-    const button = screen.getByRole('button', { name: 'Dark theme' })
-    expect(button.getAttribute('aria-pressed')).toBe('true')
-
-    fireEvent.click(button)
-    expect(button.getAttribute('aria-pressed')).toBe('false')
-    expect(document.documentElement.classList.contains('dark')).toBe(false)
+  it('renders one decorative scroll-progress hairline', () => {
+    const { container } = render(<SiteHeader />)
+    const progress = container.querySelectorAll('.scroll-progress')
+    expect(progress).toHaveLength(1)
+    expect(progress[0]!.getAttribute('aria-hidden')).toBe('true')
   })
 })

@@ -10,30 +10,15 @@ describe('SiteFooter', () => {
     vi.useRealTimers()
   })
 
-  it('renders the footer landmark with links, stack line and year', () => {
+  it('renders the copyright line with the current year and a Back to top link', () => {
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2031-06-15T12:00:00Z'))
-    const { container } = render(<SiteFooter />)
-    expect(screen.getByRole('contentinfo')).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'GitHub' }).getAttribute('href')).toBe(
-      `https://github.com/${profile.githubLogin}`,
-    )
-    expect(screen.getByRole('link', { name: profile.email }).getAttribute('href')).toBe(
-      `mailto:${profile.email}`,
+    render(<SiteFooter />)
+    const footer = screen.getByRole('contentinfo')
+    expect(footer.textContent).toContain(
+      `© 2031 ${profile.name}. Built with React, TypeScript and Tailwind CSS.`,
     )
     expect(screen.getByRole('link', { name: 'Back to top' }).getAttribute('href')).toBe('#main')
-    const text = container.textContent ?? ''
-    for (const s of ['Vite', 'React 19', 'TypeScript', 'Tailwind CSS', 'shadcn/ui']) {
-      expect(text).toContain(s)
-    }
-    expect(text).toContain(`© 2031 ${profile.name}`)
-  })
-
-  it('renders the rail end node as hidden decoration with no content', () => {
-    const { container } = render(<SiteFooter />)
-    const node = container.querySelector('[data-rail-end]')
-    expect(node?.getAttribute('aria-hidden')).toBe('true')
-    expect(node?.textContent).toBe('')
-    expect(node?.querySelector('a, button, [tabindex]')).toBeNull()
+    expect(screen.getAllByRole('link')).toHaveLength(1)
   })
 })

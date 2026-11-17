@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 
-import { Rail } from './Rail'
 import { SiteFooter } from './SiteFooter'
 import { SiteHeader } from './SiteHeader'
 import { ActiveSectionContext, useActiveSection } from './useActiveSection'
@@ -21,13 +20,8 @@ export function Layout({ children }: LayoutProps) {
         Skip to content
       </a>
       <SiteHeader />
-      {/* The page container: pl-rail reserves the git-history column every section sits beside. */}
-      <main
-        id="main"
-        tabIndex={-1}
-        className="relative mx-auto w-full max-w-content pl-rail outline-none"
-      >
-        <Rail />
+      {/* Sections own their width: the hero is full bleed, the rest use max-w-content. */}
+      <main id="main" tabIndex={-1} className="outline-none">
         {children}
       </main>
       <SiteFooter />

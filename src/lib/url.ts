@@ -2,7 +2,7 @@
 // An entry is an exact host ("github.com") or a suffix starting with "." (".github.io").
 
 export const GITHUB_LINK_HOSTS = ['github.com', '.github.io'] as const
-export const GITHUB_AVATAR_HOSTS = ['avatars.githubusercontent.com'] as const
+export const RESUME_HOSTS = ['drive.google.com', 'docs.google.com'] as const
 
 function hostAllowed(host: string, allowed: readonly string[]): boolean {
   return allowed.some((h) => (h.startsWith('.') ? host.endsWith(h) : host === h))
@@ -23,6 +23,16 @@ export function safeUrl(value: unknown, allowedHosts?: readonly string[]): strin
   if (url.protocol !== 'https:' || url.username || url.password) return null
   if (allowedHosts && !hostAllowed(url.hostname, allowedHosts)) return null
   return url.href
+}
+
+/**
+ * The href for the resume control: a PDF served from this site (`/resume/*.pdf`) or an https
+ * Google Drive link (so the file can be replaced in Drive without a redeploy). Anything else is null.
+ */
+export function resumeHref(value: string | null): string | null {
+  if (value === null) return null
+  if (/^\/resume\/[\w.-]+\.pdf$/.test(value)) return value
+  return safeUrl(value, RESUME_HOSTS)
 }
 
 const GITHUB_LOGIN_RE = /^[a-z\d](?:[a-z\d-]{0,38})$/i

@@ -27,13 +27,17 @@ hits=$(grep -rIlE 'data:(font/|application/(x-)?font|(application|text)/(x-)?jav
 [ -z "$hits" ] || fail "data: URL in font or script context: $hits"
 
 # Phone numbers: country code, 10-digit mobile, or 5+5 grouped. Pattern split so this file never holds the literal.
+# dist/resume/ is excluded explicitly: the owner chose to keep contact details in the resume PDF,
+# and -I alone would stop skipping it if a PDF were ever saved uncompressed.
 plus='[+]9''1'
-hits=$(grep -rIlE "$plus|(^|[^0-9])[6-9][0-9]{9}([^0-9]|\$)|(^|[^0-9])[0-9]{5}[ -][0-9]{5}([^0-9]|\$)" "$DIST" || true)
+hits=$(grep -rIlE "$plus|(^|[^0-9])[6-9][0-9]{9}([^0-9]|\$)|(^|[^0-9])[0-9]{5}[ -][0-9]{5}([^0-9]|\$)" "$DIST" |
+  grep -v "^$DIST/resume/" || true)
 [ -z "$hits" ] || fail "phone-number pattern in: $hits"
 
-# Email literal anywhere except security.txt, where a mailto: Contact is its stated purpose (section 8).
+# Email literal anywhere except security.txt, where a mailto: Contact is its stated purpose (section 8),
+# and the resume PDF (owner's choice, see the phone check).
 email='manpreetchandi555''@''gmail.com'
-hits=$(grep -rIlF "$email" "$DIST" | grep -v '/.well-known/security.txt$' || true)
+hits=$(grep -rIlF "$email" "$DIST" | grep -v -e '/.well-known/security.txt$' -e "^$DIST/resume/" || true)
 [ -z "$hits" ] || fail "email literal in: $hits"
 
 # CSP meta must be the first element in <head>.

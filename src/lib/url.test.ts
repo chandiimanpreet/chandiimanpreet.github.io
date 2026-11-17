@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { GITHUB_LINK_HOSTS, githubProfileUrl, isGithubLogin, safeUrl } from './url'
+import { GITHUB_LINK_HOSTS, githubProfileUrl, isGithubLogin, resumeHref, safeUrl } from './url'
 
 describe('safeUrl', () => {
   it.each([
@@ -41,5 +41,25 @@ describe('github logins', () => {
   it('builds a profile URL only for valid logins', () => {
     expect(githubProfileUrl('antirez')).toBe('https://github.com/antirez')
     expect(githubProfileUrl('../evil')).toBeNull()
+  })
+})
+
+describe('resumeHref', () => {
+  it('accepts a local PDF and Google Drive https links', () => {
+    expect(resumeHref('/resume/a.pdf')).toBe('/resume/a.pdf')
+    expect(resumeHref('https://drive.google.com/file/d/abc123/view?usp=sharing')).toBe(
+      'https://drive.google.com/file/d/abc123/view?usp=sharing',
+    )
+  })
+  it('rejects everything else', () => {
+    for (const v of [
+      null,
+      '/resume/../x.pdf',
+      '/other/a.pdf',
+      'http://drive.google.com/file/d/a/view',
+      'https://evil.example/resume.pdf',
+      'javascript:alert(1)',
+    ])
+      expect(resumeHref(v)).toBeNull()
   })
 })
