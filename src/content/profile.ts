@@ -32,9 +32,9 @@ export const profile: Profile = {
   ],
   email: [...EMAIL_REVERSED].reverse().join(''),
   githubLogin: 'chandiimanpreet',
-  // OWNER DECISION: the resume PDF (phone number included) ships at public/resume/. Set this to null to
-  // show every Resume control disabled ("coming soon").
-  resumeUrl: '/resume/ManpreetSingh_Resume.pdf',
+  // OWNER DECISION: the resume lives in Google Drive (public viewer link; replace the file via
+  // "Manage versions" so this link stays valid). null shows every Resume control disabled ("coming soon").
+  resumeUrl: 'https://drive.google.com/file/d/1oowuUjFVxn6LK8ig8DnYJv6U9yr1LJ-4/view?usp=sharing',
 }
 
 // Header brand lines (docs/DESIGN-V3-HEADER.md 2.2): the role as user@host, the field as a path.

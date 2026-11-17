@@ -13,7 +13,7 @@ describe('HeroSection', () => {
     expect(container.querySelectorAll('h1')).toHaveLength(1)
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('ManpreetSingh')
     const resume = screen.getByRole('link', { name: /resume/i })
-    expect(resume.getAttribute('href')).toMatch(/^\/resume\/.+\.pdf$/)
+    expect(resume.getAttribute('href')).toMatch(/^https:\/\/drive\.google\.com\//)
     expect(resume.getAttribute('target')).toBe('_blank')
     expect(screen.getByRole('link', { name: /view projects/i }).getAttribute('href')).toBe(
       '#projects',
