@@ -2,6 +2,8 @@
 
 Portfolio of Manpreet Singh, Backend Engineer: Go and Node.js/TypeScript services, distributed systems, durable workflows on Temporal, AWS and Kubernetes. A single static, dark-only page: a hero (typed tagline, request-flow diagram, animated background), About, Projects (terminal-window cards from a curated list) and Contact. No runtime network requests; all content is in `src/content/`.
 
+Live: https://chandiimanpreet.github.io/ (deployed by GitHub Actions on every push to `main`).
+
 ## Stack
 
 Vite, React 19, TypeScript (strict), Tailwind CSS v4 (CSS-first tokens in `src/index.css`), shadcn/ui on Radix, `lucide-react`, self-hosted fonts via `@fontsource-variable`. Tests: Vitest, Testing Library, jsdom. ESLint and Prettier. No animation, state or chart library.
