@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+*.local
+*.log
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+node_modules/.tmp
+.env*
+!.env.example
+*.pem
+*.key

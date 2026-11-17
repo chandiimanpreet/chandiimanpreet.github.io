@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <!-- Production CSP meta is injected first in <head> at build time (vite.config.ts, docs/SECURITY.md section 1). -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="color-scheme" content="dark light" />
+    <!-- Must equal --background of .dark in src/index.css (the default theme); public/theme-init.js
+         swaps it per theme and a test in src/content/content.test.ts keeps all three in sync. -->
+    <meta name="theme-color" content="#0d1017" />
+    <!-- Blocking classic script: applies the saved theme before first paint. No inline scripts (CSP). -->
+    <script src="/theme-init.js"></script>
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="/node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2"
+    />
+
+    <title>Manpreet Singh · Backend Engineer</title>
+    <meta
+      name="description"
+      content="Manpreet Singh, Backend Engineer. Backend systems in Go and Node.js/TypeScript, distributed systems, durable workflows, AWS and Kubernetes, plus experience shipping LLM agent services."
+    />
+    <meta name="author" content="Manpreet Singh" />
+    <link rel="canonical" href="https://chandiimanpreet.github.io/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="Manpreet Singh" />
+    <meta property="og:title" content="Manpreet Singh · Backend Engineer" />
+    <meta
+      property="og:description"
+      content="Backend systems in Go and Node.js/TypeScript, distributed systems, durable workflows, AWS and Kubernetes, plus experience shipping LLM agent services."
+    />
+    <meta property="og:url" content="https://chandiimanpreet.github.io/" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="profile:first_name" content="Manpreet" />
+    <meta property="profile:last_name" content="Singh" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Manpreet Singh · Backend Engineer" />
+    <meta
+      name="twitter:description"
+      content="Backend systems in Go and Node.js/TypeScript, distributed systems, durable workflows, AWS and Kubernetes, plus experience shipping LLM agent services."
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p>
+        Manpreet Singh, Backend Engineer. This site needs JavaScript; my work is on GitHub at
+        github.com/chandiimanpreet.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,211 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/instrument-sans';
+@import '@fontsource-variable/jetbrains-mono';
+
+/* Dark is the default: index.html ships <html class="dark"> and the head script removes it for light. */
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Palette from docs/DESIGN.md section 2. Raw values live here once; everything else
+ * (shadcn components, sections) reads them through the semantic tokens in @theme below.
+ * :root is "Paper" (light), .dark is "Ink" (dark, default).
+ */
+:root {
+  color-scheme: light;
+  --background: #faf7f1; /* Paper */
+  --foreground: #171b24; /* Ink */
+  --card: #ffffff;
+  --card-foreground: #171b24;
+  --popover: #ffffff;
+  --popover-foreground: #171b24;
+  --primary: #9a4a00; /* Burnt saffron: links, primary actions, active node */
+  --primary-foreground: #ffffff;
+  --secondary: #f1ece2; /* Linen */
+  --secondary-foreground: #171b24;
+  --muted: #f1ece2;
+  --muted-foreground: #535c6b; /* Graphite */
+  --accent: #f1ece2; /* shadcn "accent" = subtle hover fill, NOT saffron */
+  --accent-foreground: #171b24;
+  --destructive: #ad272c; /* Brick */
+  --border: #ddd5c7; /* Crease: decorative only */
+  --border-strong: #857b6b; /* control outlines, needs 3:1 */
+  --input: #857b6b;
+  --ring: #9a4a00;
+  --surface: #ffffff;
+  --surface-2: #f1ece2;
+  --branch: #2a5f96; /* Deep steel: forked rail, Showcase */
+  --ok: #1a6e41; /* Pine */
+  --glow: rgb(154 74 0 / 0.08); /* hero HEAD halo */
+  --spot: rgb(42 95 150 / 0.07); /* Showcase pointer spotlight */
+  --radius: 10px;
+
+  /* Layout values that change with the viewport (Tailwind tokens below point at these). */
+  --rail-col: 1.25rem;
+  --fork-offset: 0rem;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --rail-col: 3.5rem;
+    --fork-offset: 1.75rem;
+  }
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #0d1017; /* Ink */
+  --foreground: #ece8df; /* Bone */
+  --card: #151a23; /* Slate */
+  --card-foreground: #ece8df;
+  --popover: #151a23;
+  --popover-foreground: #ece8df;
+  --primary: #f5a524; /* Saffron */
+  --primary-foreground: #1a1204; /* Char */
+  --secondary: #1d2430; /* Slate raised */
+  --secondary-foreground: #ece8df;
+  --muted: #1d2430;
+  --muted-foreground: #a3acba; /* Ash */
+  --accent: #1d2430;
+  --accent-foreground: #ece8df;
+  --destructive: #f58a8c; /* Coral */
+  --border: #2a3342; /* Seam */
+  --border-strong: #6b7890;
+  --input: #6b7890;
+  --ring: #f5a524;
+  --surface: #151a23;
+  --surface-2: #1d2430;
+  --branch: #7db0e0; /* Steel */
+  --ok: #5bc58b; /* Moss */
+  --glow: rgb(245 165 36 / 0.12);
+  --spot: rgb(125 176 224 / 0.1);
+}
+
+@theme inline {
+  /* colour */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-branch: var(--branch);
+  --color-ok: var(--ok);
+  --color-glow: var(--glow);
+  --color-spot: var(--spot);
+
+  /* type */
+  --font-display: 'Bricolage Grotesque Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-heading: var(--font-display);
+  --font-sans: 'Instrument Sans Variable', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --text-hero: clamp(2.75rem, 1.6rem + 5.8vw, 5.5rem);
+  --text-hero--line-height: 0.95;
+  --text-hero--letter-spacing: -0.03em;
+  --text-hero--font-weight: 700;
+  --text-h2: clamp(1.75rem, 1.35rem + 2vw, 2.75rem);
+  --text-h2--line-height: 1.1;
+  --text-h2--letter-spacing: -0.02em;
+  --text-h2--font-weight: 600;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.3;
+  --text-h3--letter-spacing: -0.01em;
+  --text-h3--font-weight: 600;
+  --text-lead: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+  --text-lead--line-height: 1.5;
+  --text-code: 0.8125rem;
+  --text-code--line-height: 1.5;
+
+  /* space and layout (Tailwind's 4px spacing scale already matches --sp-1..9) */
+  --spacing-section: clamp(3rem, 6vw, 5rem);
+  --spacing-gutter: clamp(1rem, 5vw, 3rem);
+  --spacing-header: 4rem;
+  --spacing-target: 2.75rem; /* 44px touch target */
+  --spacing-rail: var(--rail-col);
+  --spacing-rail-line: 2px;
+  --spacing-node: 0.75rem;
+  --spacing-node-sm: 0.5rem;
+  --spacing-fork: var(--fork-offset);
+  --spacing-label: 9rem; /* label column: skills, health, changelog */
+  --container-content: 70rem;
+  --container-measure: 62ch;
+
+  /* shape: 4px for chips/inputs, 10px for cards/buttons, nothing larger */
+  --radius-xs: 4px;
+  --radius-sm: 4px;
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+  --radius-2xl: var(--radius);
+  --radius-3xl: var(--radius);
+  --radius-4xl: var(--radius);
+
+  /* motion: durations are 120 / 240 / 900 ms (duration-120, duration-240, duration-900) */
+  --ease-brand: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--spacing-header);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    line-height: 1.65;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  h1,
+  h2 {
+    font-family: var(--font-display);
+  }
+  /* One focus ring for everything that does not style its own (shadcn controls do). */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+}
+
+/* Lock the page behind an open modal <dialog> (the mobile menu); no runtime <style> needed. */
+body:has(dialog[open]) {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

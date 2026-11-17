@@ -1,0 +1,5 @@
+dist
+node_modules
+_legacy
+public
+package-lock.json
