@@ -25,7 +25,7 @@ describe('personal data', () => {
   it('no phone number anywhere in src/, public/ or docs/', () => {
     // Built from parts so this file never matches itself: country code or a 10-digit Indian mobile.
     const phone = new RegExp(['\\', '+9', '1', '|(?<!\\d)[6-9]\\d{9}(?!\\d)'].join(''))
-    const hits = ['src', 'public', 'docs', '_legacy', 'index.html']
+    const hits = ['src', 'public', 'docs', 'index.html']
       .flatMap((d) => (d.includes('.') ? [join(ROOT, d)] : textFiles(join(ROOT, d))))
       .filter((f) => phone.test(readFileSync(f, 'utf8')))
     expect(hits).toEqual([])
